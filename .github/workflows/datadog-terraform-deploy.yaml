@@ -46,7 +46,7 @@ jobs:
         run: |
           for FILE in ${{ steps.changed.outputs.files }}; do
            echo "Processing $FILE" 
-           PROJECT=$(grep 'project_name' "$FILE" | awk -F '"' '{print $2}') 
+           PROJECT=$(grep 'app_name' "$FILE" | awk -F '"' '{print $2}') 
            terraform workspace select $PROJECT || terraform workspace new $PROJECT 
            terraform apply -auto-approve -var-file="$FILE" 
            done
