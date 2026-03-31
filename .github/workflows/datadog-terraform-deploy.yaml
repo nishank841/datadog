@@ -1,0 +1,52 @@
+name: Terraform Apply Per App
+
+on:
+push:
+branches:
+- main
+paths:
+- 'modules/datadog-dashboard/apps/*.tfvars'
+
+jobs:
+terraform:
+runs-on: ubuntu-latest
+
+```
+env:
+  TF_VAR_datadog_api_key: ${{ secrets.DATADOG_API_KEY }}
+  TF_VAR_datadog_app_key: ${{ secrets.DATADOG_APP_KEY }}
+
+steps:
+  - name: Checkout
+    uses: actions/checkout@v4
+    with:
+      fetch-depth: 0
+
+  - name: Setup Terraform
+    uses: hashicorp/setup-terraform@v3
+
+  - name: Detect changed tfvars
+    id: changed
+    run: |
+      FILES=$(git diff --name-only ${{ github.event.before }} ${{ github.sha }} | grep '^apps/.*\.tfvars$' || true)
+      if [ -z "$FILES" ]; then FILES=$(ls apps/*.tfvars 2>/dev/null || true); fi
+      FILES=$(echo $FILES | xargs)
+      echo "files=$FILES" >> $GITHUB_OUTPUT
+
+  - name: Terraform Init
+    run: terraform init
+
+  - name: Apply Terraform per app
+    if: steps.changed.outputs.files != ''
+    run: |
+      for FILE in ${{ steps.changed.outputs.files }}; do
+        echo "Processing $FILE"
+
+        PROJECT=$(grep 'project_name' "$FILE" | awk -F '"' '{print $2}')
+
+        terraform workspace select $PROJECT || terraform workspace new $PROJECT
+
+        terraform apply -auto-approve -var-file="$FILE"
+      done
+```
+

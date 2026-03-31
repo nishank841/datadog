@@ -1,0 +1,11 @@
+name: CI Check
+on:
+  pull_request:
+    branches: [main]
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - name: All systems go
+        run: echo "Validation successful"

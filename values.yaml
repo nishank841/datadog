@@ -1,0 +1,14 @@
+datadog:
+  apiKey: "105b2711eac8eb34fac6830c8f265e3a"
+  site: "us5.datadoghq.com/"
+
+  kubelet:
+    tlsVerify: false
+
+  clusterName: "minikube"
+
+agents:
+  enabled: true
+
+clusterAgent:
+  enabled: true
