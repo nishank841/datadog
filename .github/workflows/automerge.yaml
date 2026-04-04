@@ -14,8 +14,12 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Wait for PR to stabilize
+        run: sleep 15
+
       - name: Enable auto-merge
         uses: peter-evans/enable-pull-request-automerge@v3
         with:
+          token: ${{ secrets.MY_GITHUB_PAT }}
           pull-request-number: ${{ github.event.pull_request.number }}
           merge-method: squash
